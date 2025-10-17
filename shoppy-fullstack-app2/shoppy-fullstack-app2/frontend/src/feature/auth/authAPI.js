@@ -1,6 +1,16 @@
 import { login, logout } from '../../feature/auth/authSlice.js';
-import { validateFormCheck } from '../../utils/validate.js';
+import { validateFormCheck, validateSignupFormCheck } from '../../utils/validate.js';
+import {axiosPost} from "../../utils/dataFetch.js";
 
+/**
+ *  ID 중복 체크
+ */
+export const getIdCheck=(id)=>async(dispatch)=>{
+    const data = {"id":id};
+    const url="http://localhost:8080/member/idchect";
+    const
+
+}
 
 export const getLogin = (formData, param) => async(dispatch) => {
 
