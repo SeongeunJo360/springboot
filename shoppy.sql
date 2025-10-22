@@ -182,17 +182,77 @@ where m.id = pq.id and p.pid = pq.pid
 	and m.id = 'hong' and p.pid = 1;
 
 
+/*********************************************************************
+	상품 Return/Delivery 테이블 생성 : product_return
+**********************************************************************/
+show tables;
+create table product_return (
+	rid			int				auto_increment	primary key,
+    title		varchar(100)	not null,
+    description	varchar(200),	
+    list		json      
+);
+desc product_return;
+select * from product_return;
 
+-- json_table을 이용하여 데이터 추가
+insert into product_return(title, description, list)
+select 
+	jt.title,
+    jt.description,
+    jt.list
+from
+	json_table(
+		cast(load_file('C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/productReturn.json') 
+				AS CHAR CHARACTER SET utf8mb4 ),
+		'$[*]' COLUMNS (
+			 title   		VARCHAR(100)  	PATH '$.title',
+			 description	VARCHAR(200)  	PATH '$.description',			
+             list			json			path '$.list'
+		   )   
+    ) as jt ;
 
+desc product_return;
+select rid, title, description, list from product_return;
 
+/*********************************************************************
+	장바구니 테이블 생성 : cart
+**********************************************************************/
+-- cid, pid, id, size, qty, cdate
+create table cart(
+	cid			int 	auto_increment		primary key,
+    size		char(2)	not null,
+    qty			int		not null,
+    pid			int		not null,
+    id			varchar(50)	not null,
+    cdate		datetime 	not null,
+    constraint fk_cart_pid	foreign key(pid) references product(pid) 
+	on delete cascade		on update cascade,
+	constraint fk_cart_id	foreign key(id) references member(id) 
+	on delete cascade		on update cascade        
+);
 
+show tables;
+desc cart;
 
+select now() from dual;
+select * from cart;
 
+-- mysql은 수정, 삭제 시 update mode를 변경
+SET SQL_SAFE_UPDATES = 0;
 
+select * from cart;
+delete from cart where cid in (1,2);
+select * from cart;
 
+-- pid, size를 이용하여 상품의 존재 check 
+-- checkQty = 1 인 경우 cid(⭕) 유효 데이터
+-- checkQty = 0 인 경우 cid(❌) 무효 데이터
+SELECT cid, sum(pid=1 AND size='xs') AS checkQty FROM cart GROUP BY cid
+order by checkQty desc
+limit 1;
 
-
-
+select * from cart;
 
 
 
@@ -202,7 +262,6 @@ where m.id = pq.id and p.pid = pq.pid
     
     
     
-
 
 
 
