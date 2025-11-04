@@ -6,7 +6,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +23,6 @@ public class MemberController {
     private final AuthenticationManager authenticationManager;
     private final HttpSessionSecurityContextRepository contextRepository;
 
-    @Autowired
     public MemberController(MemberService memberService,
                             AuthenticationManager authenticationManager,
                             HttpSessionSecurityContextRepository contextRepository) {
@@ -50,23 +48,22 @@ public class MemberController {
         return result;
     }
 
+    /**
+     * Spring-Security 라이브러리를 이용한 로그인 진행 :
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Member member,
-                                    HttpServletRequest request,
-                                    HttpServletResponse response) {
-
+                                   HttpServletRequest request,
+                                   HttpServletResponse response) {
         try {
-            //1. 인증요청
             Authentication authenticationRequest =
                     UsernamePasswordAuthenticationToken.unauthenticated(member.getId(), member.getPwd());
-
-            //2. 인증처리
             Authentication authenticationResponse =
                     this.authenticationManager.authenticate(authenticationRequest);
 
             System.out.println("인증 성공: " + authenticationResponse.getPrincipal());
 
-            //3. 컨텍스트에 보관
+            // 컨텍스트에 보관
             var context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authenticationResponse);
             SecurityContextHolder.setContext(context);
@@ -78,11 +75,28 @@ public class MemberController {
                     "userId", member.getId()));
 
         }catch(Exception e) {
-            //로그인 실패
             return ResponseEntity.ok(Map.of("login", false));
         }
     }
 
+
+
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody Member member,
+//                                HttpServletRequest request) {
+//        ResponseEntity<?> response = null;
+//        boolean result = memberService.login(member);
+//        if(result) {
+//            HttpSession session = request.getSession(true);
+//            session.setAttribute("sid", "hong");
+//            //response 객체의 전송되는 쿠키에 세션객체는 자동으로 담김!!!!
+//            response = ResponseEntity.ok(Map.of("login", true));
+//        } else {
+//            response = ResponseEntity.ok(Map.of("login", false));
+//        }
+//
+//        return response;
+//    }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request,
