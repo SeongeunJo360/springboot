@@ -439,7 +439,7 @@ select * from cart;
 **********************************************************************/
 drop view view_cartlist;
 select * from information_schema.views where table_name = 'view_cartlist';
-select * from view_cartlist where id='hong';
+select * from view_cartlist;
 
 create view view_cartlist
 as
@@ -455,9 +455,9 @@ select  m.id,
 	   c.size,
 	   c.qty,
 	   c.cid,
-       t.total_price
+       t.totalPrice
    from member m, product p, cart c,
-          (select c.id, sum(c.qty * p.price) as total_price
+          (select c.id, sum(c.qty * p.price) as totalPrice
 			from cart c
 			inner join product p on c.pid = p.pid
 			group by c.id) as t
@@ -618,7 +618,8 @@ select * from view_cartlist;
 
 
 -- mysql은 수정, 삭제 시 update mode를 변경
-SET SQL_SAFE_UPDATES = 0;     
+SET SQL_SAFE_UPDATES = 0;
+      
 --
 use shoppy;
 select database();
@@ -651,22 +652,6 @@ desc product_detailinfo;
 desc product;
 ALTER TABLE product CHANGE imgList img_list JSON;
 
-show tables;
-desc product_return;
-desc product_qna;
-
-select * from cart;
-desc cart;
-
-select * from view_cartlist;
-desc view_cartlist;
-
--- mysql에서는 view 수정 불가!!, 컬럼 수정 시 재 생성
-select * from information_schema.views
-	where table_name='view_cartlist';
-    
-    
-
 
                 
 
@@ -677,7 +662,6 @@ select * from information_schema.views
     
     
     
-
 
 
 
